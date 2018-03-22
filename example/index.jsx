@@ -130,7 +130,7 @@ class Demo extends React.Component {
         className: 'preview-button',
         text: <span>测试</span>,
         onClick:()=>{
-          braftEditor.setContent('<p>123</p><span style="display:none">type:1;content:123123123123</span>','html')
+          braftEditor.setContent('<p>123</p><disnone style="display:none">type:1;content:123123123123</disnone>','html')
           console.log(braftEditor.getHTMLContent())
         }
       },{
