@@ -9,6 +9,7 @@ export default {
   ],
   excludeControls: [],
   tabIndents: 2,
+  displays:['none','inline-block','block','inline','flex','table'],
   textAlignOptions: ['left', 'center', 'right', 'justify'],
   allowSetTextBackgroundColor: true,
   letterSpacings: [0, 2, 4, 6],

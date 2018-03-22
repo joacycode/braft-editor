@@ -1,7 +1,6 @@
 import React from 'react'
 import { blocks } from 'configs/maps'
 import { getHexColor } from 'helpers/colors'
-
 const blockTypes = Object.keys(blocks)
 const blockNames = blockTypes.map(key => blocks[key])
 
@@ -54,7 +53,6 @@ const convertAtomicBlock = (block, contentState) => {
 }
 
 const styleToHTML = (props) => (style) => {
-
   style = style.toLowerCase()
   if (style === 'strikethrough') {
     return <span style={{textDecoration: 'line-through'}}/>
@@ -78,6 +76,8 @@ const styleToHTML = (props) => (style) => {
     let fontFamily = props.fontFamilies.find((item) => item.name.toLowerCase() === style.split('-')[1])
     if (!fontFamily) return
     return <span style={{fontFamily: fontFamily.family}}/>
+  } else if (style.indexOf('display-') === 0) {
+    return <span style={{ display: style.split('-')[1] }} />
   }
 
 }
@@ -192,6 +192,8 @@ const htmlToStyle = (props) => (nodeName, node, currentStyle) => {
       let fontFamily = props.fontFamilies.find((item) => item.family.toLowerCase() === node.style.fontFamily.toLowerCase())
       if (!fontFamily) continue;
       newStyle = newStyle.add('FONTFAMILY-' + fontFamily.name.toUpperCase())
+    } else if (nodeName === 'span' && node.style[i] === 'display') {
+      newStyle = newStyle.add('DISPLAY-' + node.style.display.toUpperCase())
     }
   }
   return newStyle;
