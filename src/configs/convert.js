@@ -77,9 +77,8 @@ const styleToHTML = (props) => (style) => {
     if (!fontFamily) return
     return <span style={{fontFamily: fontFamily.family}}/>
   } else if (style.indexOf('display-') === 0) {
-    return <disnone style={{ display: style.split('-')[1] }} />
+    return <span style={{ display: style.split('-')[1] }} />
   }
-
 }
 
 const blockToHTML = (contentState) => (block) => {
@@ -192,7 +191,7 @@ const htmlToStyle = (props) => (nodeName, node, currentStyle) => {
       let fontFamily = props.fontFamilies.find((item) => item.family.toLowerCase() === node.style.fontFamily.toLowerCase())
       if (!fontFamily) continue;
       newStyle = newStyle.add('FONTFAMILY-' + fontFamily.name.toUpperCase())
-    } else if (nodeName === 'disnone' && node.style[i] === 'display') {
+    } else if (nodeName === 'span' && node.style[i] === 'display') {
       newStyle = newStyle.add('DISPLAY-' + node.style.display.toUpperCase())
     }
   }
