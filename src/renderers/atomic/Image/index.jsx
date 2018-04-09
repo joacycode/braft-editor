@@ -22,7 +22,7 @@ export default class Image extends React.Component {
 
     let float = blockData.get('float')
     let alignment = blockData.get('alignment')
-    let { url, link, link_target, width, height } = mediaData
+    let { url, link, link_target, width, height ,data_meta} = mediaData
     let imageStyles = {}
     let clearFix = false
 
@@ -94,7 +94,7 @@ export default class Image extends React.Component {
           )}
           <img
             ref={instance => this.imageElement = instance}
-            src={url} style={{width, height}} width={width} height={height}
+            src={url} style={{ width, height }} width={width} height={height} data-meta={data_meta}
           />
         </div>
         {clearFix && <div className="clearfix" style={{clear:'both',height:0,lineHeight:0,float:'none'}}></div>}

@@ -12,7 +12,7 @@ const convertAtomicBlock = (block, contentState) => {
   const mediaType = entity.getType().toLowerCase()
 
   let { float, alignment } = block.data
-  let { url, link, link_target, width, height } = entity.getData()
+  let { url, link, link_target, width, height, data_meta} = entity.getData()
 
   if (mediaType === 'image') {
 
@@ -23,19 +23,19 @@ const convertAtomicBlock = (block, contentState) => {
     } else if (alignment) {
       imageWrapStyle.textAlign = alignment
     }
-
+    data_meta = data_meta || '';
     if (link) {
       return (
         <div className="media-wrap image-wrap" style={imageWrapStyle}>
           <a style={{display:'inline-block'}} href={link} target={link_target}>
-            <img src={url} width={width} height={height} style={{width, height}} />
+            <img src={url} width={width} height={height} style={{ width, height }} data-meta={data_meta}/>
           </a>
         </div>
       )
     } else {
       return (
         <div className="media-wrap image-wrap" style={imageWrapStyle}>
-          <img src={url} width={width} height={height} style={{width, height}}/>
+          <img src={url} width={width} height={height} style={{ width, height }} data-meta={data_meta}/>
         </div>
       )
     }
@@ -199,7 +199,6 @@ const htmlToStyle = (props) => (nodeName, node, currentStyle) => {
 }
 
 const htmlToEntity = (nodeName, node, createEntity) => {
-
   if (nodeName === 'a' && !node.querySelectorAll('img').length) {
     let { href, target } = node
     return createEntity('LINK', 'MUTABLE',{ href, target })
@@ -208,14 +207,14 @@ const htmlToEntity = (nodeName, node, createEntity) => {
   } else if (nodeName === 'video') {
     return createEntity('VIDEO', 'IMMUTABLE',{ url: node.src }) 
   } else if (nodeName === 'img') {
-
     let parentNode = node.parentNode
     let { src: url, width, height } = node
     width = width || 'auto'
     height = height || 'auto'
-
     let entityData = { url, width, height }
-
+    if (node.getAttribute('data-meta')){
+      entityData.data_meta = node.getAttribute('data-meta');
+    }
     if (parentNode.nodeName.toLowerCase() === 'a') {
       entityData.link = parentNode.href
       entityData.link_target = parentNode.target
