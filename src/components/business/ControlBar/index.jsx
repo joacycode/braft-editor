@@ -55,10 +55,11 @@ export default class ControlBar extends React.Component {
     } else if (type === 'editor-state-method') {
       this.props.editor[command] && this.props.editor[command]()
     }
-
-    window.setImmediate(() => {
-      this.props.editor.focus()
-    })
+    if (!window.rteStickControllerBar){
+      window.setImmediate(() => {
+        this.props.editor.focus()
+      })
+    }
   }
 
   showMediaPicker = () => {
@@ -70,7 +71,7 @@ export default class ControlBar extends React.Component {
     const { editor, controls, media, extendControls, language, colors, tempColors, fontSizes, fontFamilies, emojis, viewWrapper, lineHeights, letterSpacings, editorHeight, textAlignOptions, allowSetTextBackgroundColor, indents} = this.props
     const currentBlockType = editor.getSelectionBlockType()
     const supportedControls = getSupportedControls(language)
-    const commonProps = { editor, editorHeight, language, viewWrapper }
+    const commonProps = { editor, editorHeight, language, viewWrapper}
     const renderedExtendControls = extendControls.map((item, index) => {
       if (item.type === 'split') {
         return <span key={controls.length * 2 + index} className="split-line"></span>

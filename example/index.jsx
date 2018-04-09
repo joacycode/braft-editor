@@ -213,6 +213,7 @@ class Demo extends React.Component {
             } }
             allowSetTextBackgroundColor={true}
             media={mediaProps}
+            stickControllerBar={true}
           />
         </div>
         <div><a href="javascript:void(0);" onClick={this.setContent1}>设置内容1</a>&emsp;&emsp;<a href="javascript:void(0);" onClick={this.setContent2}>设置内容2</a></div>

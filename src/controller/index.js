@@ -312,9 +312,11 @@ export default class EditorController extends React.Component{
   }
 
   requestFocus = () => {
-    window.setImmediate(() => {
-      this.focus()
-    })
+    if (!window.rteStickControllerBar){
+      window.setImmediate(() => {
+        this.focus()
+      })
+    }
   }
 
   requestBlur = () => {

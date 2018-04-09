@@ -339,11 +339,10 @@ export default class BraftEditor extends EditorController {
 
     let {
       controls, excludeControls, extendControls, disabled, height, media, language, colors,
-      fontSizes, fontFamilies, emojis, viewWrapper, placeholder, imageControls, lineHeights, letterSpacings, indents, displays,textAlignOptions, allowSetTextBackgroundColor
+      fontSizes, fontFamilies, emojis, viewWrapper, placeholder, imageControls, lineHeights, letterSpacings, indents, textAlignOptions, allowSetTextBackgroundColor, stickControllerBar
     } = this.props
-
+    window.rteStickControllerBar = stickControllerBar;
     controls = controls.filter(item => excludeControls.indexOf(item) === -1)
-
     const { tempColors } = this.state
     language = languages[language] || languages[defaultOptions.language]
 
@@ -365,7 +364,6 @@ export default class BraftEditor extends EditorController {
     this.lineHeightList = lineHeights
     this.letterSpacingList = letterSpacings
     this.indentList = indents
-    this.displayList = displays
 
 
     if (!media.uploadFn) {
@@ -387,7 +385,7 @@ export default class BraftEditor extends EditorController {
 
     const customStyleMap = getCustomStyleMap({
       colors: [...colors, ...tempColors],
-      fontSizes, fontFamilies, lineHeights, letterSpacings, indents, displays
+      fontSizes, fontFamilies, lineHeights, letterSpacings, indents
     })
     const editorProps = {
       ref: instance => { this.draftInstance = instance },
