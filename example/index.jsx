@@ -31,7 +31,7 @@ class Demo extends React.Component {
     const mediaLibrary = this.editorInstance.getMediaLibraryInstance()
 
     const successFn = (response) => {
-      param.success(JSON.parse(xhr.responseText)[0])
+      param.success({url: JSON.parse(xhr.responseText)[0]})
     }
 
     const progressFn = (event) => {
@@ -116,7 +116,7 @@ class Demo extends React.Component {
     this.setState({
       contentId: 2,
       contentFormat: 'html',
-      initialContent: '<h1 style="text-align:center;font-size:18px;text-align:right;letter-spacing:6;">Hello World!</h1><hr/><p style="text-align:right;">Hello Braft!</p>'
+      initialContent: '<p>asdasdas<u><span style="text-decoration:line-through;"><strong>da<em><span style="font-size:32px;color:#fdda00;background-color:#07a9fe;">s</span>d</em>ad</strong>asdas</span></u>d</p>'
     })
   }
 
@@ -130,8 +130,7 @@ class Demo extends React.Component {
         className: 'preview-button',
         text: <span>测试</span>,
         onClick:()=>{
-          braftEditor.setContent(`<div class="media-wrap image-wrap"><img src="" data-meta="${1111111}" /></div>`,'html')
-          console.log(braftEditor.getHTMLContent())
+          this.editorInstance.setContent('<p>asd<span style="font-size:14px;color:#8e44ad;background-color:#f32784;line-height:1.2;letter-spacing:6px;font-family:&quot;Courier New&quot;, Courier, monospace;">asdasdasdasdasd</span></span></span>asd</p>','html')
         }
       },{
         type: 'button',
@@ -156,6 +155,13 @@ class Demo extends React.Component {
         ref: instance => window.customDropDown = instance,
         component: <h1 style={{width: 200, color: '#ffffff', padding: 10, margin: 0}}>Hello World!</h1>
       }, {
+        type: 'button',
+        className: 'preview-button',
+        text: '插入内容',
+        onClick: () => {
+          this.editorInstance.insertHTML('<span>123123</span>')
+        }
+      }, {
         type: 'modal',
         html: '<span style="color:#f00;">弹出框</span>',
         text: '弹出框',
@@ -167,6 +173,7 @@ class Demo extends React.Component {
           showCancel: true,
           showConfirm: true,
           confirmable: true,
+          onCreate: modal => this.myModal = modal,
           children: (
             <div style={{width: 480, height: 320, padding: 30}}>
               <span>Hello World!</span>
@@ -179,8 +186,6 @@ class Demo extends React.Component {
     const mediaProps = {
       onRemove: console.log,
       removeConfirmFn: (param) => {
-        console.log('items to be removed')
-        console.log(param.items)
         if (confirm('确认删除所选项目么?')) {
           param.confirm()
         }
@@ -191,29 +196,11 @@ class Demo extends React.Component {
       <div>
         <div className="demo" id="demo">
           <BraftEditor
-            controls = {[
-              'undo', 'redo', 'media', 'font-size', 'font-family', 'line-height', 'letter-spacing', 'indent', 'text-color',
-              'bold','text-align','list_ul', 'list_ol'
-            ]}
-            viewWrapper={'#demo'}
-            placeholder={"Hello World!"}
-            ref={instance => {
-              window.braftEditor = instance
-              this.editorInstance = instance
-            }}
-            language="zh-hant"
-            excludeControls={[]}
-            contentFormat={this.state.contentFormat}
-            contentId={this.state.contentId}
             initialContent={this.state.initialContent}
+            onHTMLChange={htmlContent => this.setState({ htmlContent })}
+            contentFormat='html'
+            ref={instance => this.editorInstance = instance}
             extendControls={extendControls}
-            onHTMLChange={htmlContent => { 
-              console.log(htmlContent)
-              this.setState({ htmlContent })
-            } }
-            allowSetTextBackgroundColor={true}
-            media={mediaProps}
-            stickControllerBar={true}
           />
         </div>
         <div><a href="javascript:void(0);" onClick={this.setContent1}>设置内容1</a>&emsp;&emsp;<a href="javascript:void(0);" onClick={this.setContent2}>设置内容2</a></div>
