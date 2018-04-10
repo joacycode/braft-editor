@@ -18,16 +18,19 @@ const convertAtomicBlock = (block, contentState) => {
   if (mediaType === 'image') {
 
     let imageWrapStyle = {}
+    let styledClassName = ''
 
     if (float) {
       imageWrapStyle.float = float
+      styledClassName += ' float-' + float
     } else if (alignment) {
       imageWrapStyle.textAlign = alignment
+      styledClassName += ' align-' + alignment
     }
 
     if (link) {
       return (
-        <div className="media-wrap image-wrap" style={imageWrapStyle}>
+        <div className={"media-wrap image-wrap" + styledClassName} style={imageWrapStyle}>
           <a style={{display:'inline-block'}} href={link} target={link_target}>
             <img src={url} width={width} height={height} style={{width, height}} />
           </a>
@@ -35,7 +38,7 @@ const convertAtomicBlock = (block, contentState) => {
       )
     } else {
       return (
-        <div className="media-wrap image-wrap" style={imageWrapStyle}>
+        <div className={"media-wrap image-wrap" + styledClassName} style={imageWrapStyle}>
           <img src={url} width={width} height={height} style={{width, height}}/>
         </div>
       )
@@ -71,9 +74,9 @@ const styleToHTML = (props) => (style) => {
   } else if (style.indexOf('lineheight-') === 0) {
     return <span style={{lineHeight: style.split('-')[1]}}/> 
   } else if (style.indexOf('letterspacing-') === 0) {
-    return <span style={{ letterSpacing: style.split('-')[1] + 'px'}} />
+    return <span style={{letterSpacing: style.split('-')[1] + 'px'}}/>
   } else if (style.indexOf('indent-') === 0) {
-    return <span style={{ paddingLeft: style.split('-')[1] + 'px', paddingRight: style.split('-')[1] + 'px' }} />
+    return <span style={{paddingLeft: style.split('-')[1] + 'px', paddingRight: style.split('-')[1] + 'px' }}/>
   } else if (style.indexOf('fontfamily-') === 0) {
     let fontFamily = props.fontFamilies.find((item) => item.name.toLowerCase() === style.split('-')[1])
     if (!fontFamily) return
@@ -166,12 +169,18 @@ const entityToHTML = (entity, originalText) => {
 
 
 const htmlToStyle = (props) => (nodeName, node, currentStyle) => {
+
+  if (!node || !node.style) {
+    return currentStyle
+  }
+
   let newStyle = currentStyle
-  for (let i = 0; i < node.style.length;i++){
+
+  for (let i = 0; i < node.style.length; i++) {
     if (nodeName === 'span' && node.style[i] === 'color') {
       let color = getHexColor(node.style.color)
       newStyle = color ? newStyle.add('COLOR-' + color.replace('#', '').toUpperCase()) : newStyle
-    } else if (nodeName === 'span' && node.style[i] === 'backgroundColor') {
+    } else if (nodeName === 'span' && node.style[i] === 'background-color') {
       let color = getHexColor(node.style.backgroundColor)
       newStyle = color ? newStyle.add('BGCOLOR-' + color.replace('#', '').toUpperCase()) : newStyle
     } else if (nodeName === 'sup') {
@@ -182,7 +191,7 @@ const htmlToStyle = (props) => (nodeName, node, currentStyle) => {
       newStyle = newStyle.add('FONTSIZE-' + parseInt(node.style.fontSize, 10))
     } else if (nodeName === 'span' && node.style[i] === 'line-height') {
       newStyle = newStyle.add('LINEHEIGHT-' + node.style.lineHeight)
-    } else if (nodeName === 'span' && node.style[i] === 'letter-spacing') {
+    } else if (nodeName === 'span' && node.style[i] === 'letter-spacing' && !isNaN(node.style.letterSpacing)) {
       newStyle = newStyle.add('LETTERSPACING-' + parseInt(node.style.letterSpacing, 10))
     } else if (nodeName === 'span' && (node.style[i] === 'padding-left' || node.style[i] === 'padding-right')) {
       newStyle = newStyle.add('INDENT-' + parseInt(node.style.paddingLeft, 10))
@@ -194,7 +203,9 @@ const htmlToStyle = (props) => (nodeName, node, currentStyle) => {
       newStyle = newStyle.add('FONTFAMILY-' + fontFamily.name.toUpperCase())
     }
   }
-  return newStyle;
+
+  return newStyle
+
 }
 
 const htmlToEntity = (nodeName, node, createEntity) => {
@@ -289,12 +300,32 @@ export const getFromHTMLConfig = (props) => {
   }
 }
 
+export const mergeStyledSpans = (htmlContent) => {
+
+  // const result = htmlContent
+  //   .replace(/" isbrafttag="1"><braftspan style="/g, ';')
+  //   .replace(/(\<\/braftspan>)+/g, '</span>')
+  //   .replace(/<braftspan/g, '<span')
+  //   .replace(/" isbrafttag="1"/g, ';"')
+
+  // const result = htmlContent
+  //   .replace(/<\/braftspan>/g, '</span>')
+  //   .replace(/<braftspan/g, '<span')
+  //   .replace(/" isbrafttag="1"/g, ';"')
+
+  return htmlContent
+
+}
+
 export const convertCodeBlock = (htmlContent) => {
+
   const result = htmlContent
     .replace(/\<code\>\<div\>\<br\>\<\/div\>\<\/code\>/g, `<code><div></div></code>`)
     .replace(/\<pre\>\<code\>\<div\>/g, '<code><div>')
     .replace(/\<\/div\>\<\/code\>\<\/pre\>/g, '</div></code>')
     .replace(/\<code\>\<div\>/g, '<pre><code>')
     .replace(/\<\/div\>\<\/code\>/g, '</code></pre>')
+
   return result
+
 }

@@ -1,13 +1,12 @@
 import 'draft-js/dist/Draft.css'
 import './assets/scss/_base.scss'
 import React from 'react'
-import ReactDOM from 'react-dom'
 import languages from 'languages'
 import { Modifier, CompositeDecorator, DefaultDraftBlockRenderMap, Editor, ContentState, EditorState, RichUtils, convertFromRaw, convertToRaw, convertFromHTML as originConvertFromHTML} from 'draft-js'
 import DraftPasteProcessor from 'draft-js/lib/DraftPasteProcessor'
 import { convertToHTML, convertFromHTML} from 'draft-convert'
 import { handleNewLine } from 'draftjs-utils'
-import { getToHTMLConfig, getFromHTMLConfig, convertCodeBlock } from 'configs/convert'
+import { getToHTMLConfig, getFromHTMLConfig, mergeStyledSpans, convertCodeBlock } from 'configs/convert'
 import keyBindingFn from 'configs/keybindings'
 import defaultOptions from 'configs/options'
 import EditorController from 'controller'
@@ -17,10 +16,17 @@ import MediaLibrary from 'helpers/MediaLibrary'
 import { detectColorsFromHTML, detectColorsFromRaw } from 'helpers/colors'
 
 // TODO
+// 重写convertToHTML
 // 允许直接拖放媒体到编辑器区域
 // 强化图片尺寸编辑功能
+// 支持mention功能
+// 支持hashtag功能
 // 增加取色器
-// 尝试支持mention功能
+// 增加insertHTML API
+// 修复超过一行的文本无法居中的问题
+// 增加设置音/视频封面的功能
+// 增加编辑期内超链接快速访问的功能
+// 增加插入iframe的功能
 
 const editorDecorators = new CompositeDecorator(decorators)
 const blockRenderMap = DefaultDraftBlockRenderMap.merge(customBlockRenderMap)
@@ -129,9 +135,11 @@ export default class BraftEditor extends EditorController {
     const contentState = this.contentState
     const { fontFamilies} = this.props
 
-    return format === 'html' ? convertToHTML(getToHTMLConfig({
-      contentState, fontFamilies
-    }))(contentState) : convertToRaw(contentState)
+    if (format === 'html') {
+      return mergeStyledSpans(convertToHTML(getToHTMLConfig({contentState, fontFamilies}))(contentState))
+    } else {
+      return convertToRaw(contentState)
+    }
 
   }
 
@@ -155,6 +163,11 @@ export default class BraftEditor extends EditorController {
     return this.mediaLibrary
   }
 
+  convertHTML = (htmlString) => {
+    const { fontFamilies } = this.props
+    return convertFromHTML(getFromHTMLConfig({ fontFamilies }))(convertCodeBlock(htmlString))
+  }
+
   setContent = (content, format) => {
 
     let convertedContent
@@ -164,7 +177,7 @@ export default class BraftEditor extends EditorController {
     if (contentFormat === 'html') {
       content = content || ''
       newState.tempColors = [...this.state.tempColors, ...detectColorsFromHTML(content)].filter(item => this.props.colors.indexOf(item) === -1).filter((item, index, array) => array.indexOf(item) === index)
-      convertedContent = convertFromHTML(getFromHTMLConfig({ fontFamilies }))(convertCodeBlock(content))
+      convertedContent = this.convertHTML(content)
     } else if (contentFormat === 'raw') {
       if (!content || !content.blocks) {
         return false
@@ -253,6 +266,8 @@ export default class BraftEditor extends EditorController {
       event.preventDefault()
       return false
     }
+
+    this.props.onTab && this.props.onTab(event)
 
   }
 
@@ -349,14 +364,6 @@ export default class BraftEditor extends EditorController {
     }, callback)
 
   }
-  insertHtmlBlock(html) {
-    const blocksFromHTML = originConvertFromHTML(this.getHTMLContent() + html);
-    const newContentState = ContentState.createFromBlockArray(
-      blocksFromHTML.contentBlocks,
-      blocksFromHTML.entityMap
-    );
-    this.setState({ editorState: EditorState.push(this.editorState, newContentState, 'insert-fragment') });
-  }
 
   render() {
 
@@ -389,7 +396,6 @@ export default class BraftEditor extends EditorController {
     this.letterSpacingList = letterSpacings
     this.indentList = indents
 
-
     if (!media.uploadFn) {
       media.video = false
       media.audio = false
@@ -398,6 +404,7 @@ export default class BraftEditor extends EditorController {
     const controlBarProps = {
       editor: this,
       editorHeight: height,
+      ref: instance => this.controlBarInstance = instance,
       media, controls, language, viewWrapper, extendControls, colors, tempColors, fontSizes, fontFamilies,
       emojis, lineHeights, letterSpacings, indents, textAlignOptions, allowSetTextBackgroundColor
     }
@@ -411,6 +418,7 @@ export default class BraftEditor extends EditorController {
       colors: [...colors, ...tempColors],
       fontSizes, fontFamilies, lineHeights, letterSpacings, indents
     })
+
     const editorProps = {
       ref: instance => { this.draftInstance = instance },
       editorState: this.state.editorState,
