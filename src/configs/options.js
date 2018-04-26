@@ -27,7 +27,8 @@ export default {
     externalMedias: {
       audio: true,
       video: true,
-      image: true
+      image: true,
+      embed: true
     }
   },
   imageControls: {
@@ -87,5 +88,6 @@ export default {
     "👎", "💀", "😳", "😨", "🤕", "🤢", "😱",
     "😭", "😠", "😈", "😧", "💔", "😟", "🙀",
     "💩", "👿", "😡", "😾", "🖕"
-  ]
+  ],
+  extendAtomics: []
 }

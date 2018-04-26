@@ -369,7 +369,8 @@ export default class BraftEditor extends EditorController {
 
     let {
       controls, excludeControls, extendControls, disabled, height, media, language, colors,
-      fontSizes, fontFamilies, emojis, viewWrapper, placeholder, imageControls, lineHeights, letterSpacings, indents, textAlignOptions, allowSetTextBackgroundColor
+      fontSizes, fontFamilies, emojis, viewWrapper, placeholder, imageControls, lineHeights, letterSpacings, indents, textAlignOptions, allowSetTextBackgroundColor,
+      extendAtomics
     } = this.props
 
     controls = controls.filter(item => excludeControls.indexOf(item) === -1)
@@ -411,7 +412,8 @@ export default class BraftEditor extends EditorController {
 
     const blockRendererFn = getBlockRendererFn({
       editor: this, imageControls,
-      language, viewWrapper
+      language, viewWrapper,
+      extendAtomics
     })
 
     const customStyleMap = getCustomStyleMap({

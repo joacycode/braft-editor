@@ -2,15 +2,16 @@ import 'babel-polyfill'
 import React from 'react'
 import ReactDOM from 'react-dom'
 import BraftEditor from '../src'
- 
+import CustomAtomic from './CustomAtomic';
+
 class Demo extends React.Component {
 
   constructor(props) {
     super(props)
     this.state = {
       contentId: 0,
-      contentFormat: 'raw',
-      initialContent: '',
+      contentFormat: 'html',
+      initialContent: '<p><img style="width:100%;height:123%;" width="100%" src="https://www.baidu.com/img/bd_logo1.png?where=super" /></p>',
       htmlContent: ''
     }
     this.editorInstance = null
@@ -31,7 +32,15 @@ class Demo extends React.Component {
     const mediaLibrary = this.editorInstance.getMediaLibraryInstance()
 
     const successFn = (response) => {
-      param.success({url: JSON.parse(xhr.responseText)[0]})
+      param.success({
+        url: JSON.parse(xhr.responseText)[0].url,
+        meta: {
+          controls: true,
+          loop: true,
+          autoPlay: false,
+          poster: 'https://www.baidu.com/img/bd_logo1.png?where=super'
+        }
+      })
     }
 
     const progressFn = (event) => {
@@ -180,7 +189,23 @@ class Demo extends React.Component {
             </div>
           )
         }
+      }, {
+        type: 'button',
+        text: <span>添加自定义组件</span>,
+        onClick: () => {
+          this.editorInstance.insertMedias([{
+            type: 'HELLO',
+            name: 'BalBla',
+          }]);
+        }
       }
+    ]
+
+    const extendAtomics = [
+      {
+        mediaType: 'HELLO', 
+        component: CustomAtomic
+      },
     ]
 
     const mediaProps = {
@@ -201,6 +226,10 @@ class Demo extends React.Component {
             contentFormat='html'
             ref={instance => this.editorInstance = instance}
             extendControls={extendControls}
+            extendAtomics={extendAtomics}
+            media={{
+              // uploadFn: this.uploadFn
+            }}
           />
         </div>
         <div><a href="javascript:void(0);" onClick={this.setContent1}>设置内容1</a>&emsp;&emsp;<a href="javascript:void(0);" onClick={this.setContent2}>设置内容2</a></div>
